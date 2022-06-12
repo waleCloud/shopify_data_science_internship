@@ -7,12 +7,14 @@ SELECT LastName from Employees where EmployeeID = (SELECT TOP 1 EmployeeID FROM 
 -- Employee's last name with the most orders is `Peacock` having `40` orders.
 
 -- What product was ordered the most by customers in Germany?
-SELECT ProductName FROM Products
-WHERE ProductID IN (SELECT TOP 1 ProductID FROM OrderDetails
-WHERE OrderID IN (
-SELECT OrderID FROM Orders
-WHERE CustomerID IN (SELECT CustomerID FROM Customers
-WHERE Country = 'Germany'))
-GROUP BY ProductID
-ORDER BY COUNT(OrderDetailID) DESC)
--- Product ordered the most is `Gorgonzola Telino`
+SELECT TOP 1 Products.ProductName, SUM(OrderDetails.Quantity) As TotalQuantity FROM Products
+JOIN OrderDetails
+ON (Products.ProductID = OrderDetails.ProductID)
+JOIN Orders
+ON (Orders.OrderID = OrderDetails.OrderID)
+JOIN Customers
+ON (Customers.CustomerID = Orders.CustomerID)
+WHERE Customers.Country = 'Germany'
+GROUP BY Products.ProductName
+ORDER BY TotalQuantity DESC
+-- Product ordered the most is `Boston Crab Meat` with `160` total orders.
